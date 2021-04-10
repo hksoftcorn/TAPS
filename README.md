@@ -1,2 +1,2 @@
 # TASP
-✨ Today Algorithm Solving Problem
+✨ Today Algorithm Problem Solving 
