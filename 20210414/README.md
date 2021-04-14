@@ -222,27 +222,56 @@ for tc in range(1, T+1):
 
 ## 1247 최적 경로
 
-- 문제 설명 : 10진수를 2진수로 바꾸어 반환합니다.
-- 컨셉 : 1) 2로 나누어 몫과 나머지를 구합니다. 2) 나머지를 거꾸로 담으면 이진수가 완성됩니다.
+- 문제 설명 : 출발지에서 출발하여 가장 짧은 경로로 모든 노드를 거치고 도착지에 도착하는 경로를 찾아라
+- 이론 : 최적화 문제 + 완전 그래프
+  - 조건을 만족하는 해(후보 해) 중에서 가장 최소가 되는 값을 찾으면 됩니다.
+  - 최적화 문제는 우선적으로 `완전 검색`을 해야 합니다.
+  - *TSP* (*Traveling Salesman Problem*) 이란 문자 그대로, 물건을 판매하기 위해 여행하는 세일즈맨의 문제입니다.
+  - Force가 많이 필요합니다 → CPU 사용률이 높습니다. 
+    - P : 쉬운 문제, big O 표현식이 다항식에 들어오는 문제라면 (컴퓨터에게) 쉬운 문제라고 분류합니다.
+    - ~P : 어려운 문제, 지수 혹은 팩토리얼 계산식이 들어가면서 수많은 연산을 요구합니다.
+- 컨셉 : 1) 입력을 출발지 - 경유지(N개) - 도착지로 받습니다. 2) 순열을 통해 경유지의 경로를 완전 탐색합니다. 3) 거리를 계산하여 최소거리를 찾습니다.
 
 ```python
+def dist(arr):
+    cnt = 0
+    for i in range(N + 1, 0, -1):
+        x = abs(arr[i][0] - arr[i-1][0])
+        y = abs(arr[i][1] - arr[i-1][1])
+        cnt += x + y
+    return cnt
+
+def perm(k):
+    global min_dist
+    if k == N + 1:
+        tmp = dist(pos)
+        if min_dist > tmp:
+            min_dist = tmp
+
+    else:
+        for i in range(k, N + 1):
+            pos[k], pos[i] = pos[i], pos[k]
+            perm(k + 1)
+            pos[k], pos[i] = pos[i], pos[k]
+
+
+
 T = int(input())
-
 for tc in range(1, T+1):
-    N, M = map(int, input().split())
-    # 1. M을 2진수로 바꾸기
-    B = []
-    while M > 0:
-        M, r = divmod(M, 2)
-        B.insert(0, r)
+    N = int(input())
+    G = [0] * (N + 2)
+    visited = [0] * (N + 2)
+    arr = list(map(int, input().split()))
 
-    # 2. M의 뒤에서부터 N번째 까지 && 1인지 확인하기
-    def check(N):
-        for i in range(N):
-            if not B or B.pop() != 1:
-                return False
-        return True
-    # 3. True : ON / False : OFF
-    print('#{} {}'.format(tc, 'ON' if check(N) else 'OFF'))
+    pos = [[arr[0], arr[1]]]
+    for i in range(4, (N + 2) * 2, 2):
+        pos.append([arr[i], arr[i + 1]])
+    pos.append([arr[2], arr[3]])
+    min_dist = 0xffffff
+
+    perm(1)
+    print('#{} {}'.format(tc, min_dist))
+
+
 ```
 
